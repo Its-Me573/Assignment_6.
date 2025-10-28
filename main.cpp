@@ -75,7 +75,7 @@ int main() {
 
         // --- Read Line 3: Carrots needed per shulker ---
         getline(playerInfo, temporaryString);
-        carrotsNeeded = stoi(temporaryString); // e.g., "3" → each shulker takes 3 carrots
+        carrotsPerShulker = stoi(temporaryString); // e.g., "3" → each shulker takes 3 carrots
 
         // --- Remaining lines: inventory data in format "ItemID ItemAmount" ---
         char currentItem = ' ';
@@ -83,7 +83,7 @@ int main() {
         int currentRow = 0;
         int currentColumn = 0;
 
-        // Each line might look like: "C 12" (12 carrots), "R 8" (8 rockets), etc.
+        // Each line might look like: "C 12" (12 carrots), "R 8" (8 rockets)
         while (getline(playerInfo, temporaryString)) {
             currentItem = temporaryString[0]; // the first character is the item ID
             itemCount = stoi(temporaryString.substr(temporaryString.find(' ') + 1)); // extract quantity
@@ -122,8 +122,67 @@ int main() {
     //if statement that checks if the file opened succesfully
     //all of this is to get the formula and value to compare to the other paths
     //all stored variables are temporary and they will be removed for the next path
+    string readString = "";
+    string concatenatedString = "";
+    int treesEncountered = 0;
+    int shulkersEncountered = 0;
+    int rocketsUsedThisPath = 0;
+
     if(expeditionFile.is_open()){
-    
+        for(int i = 0; i < 4; i++){
+            concatenatedString = "";
+            treesEncountered = 0;
+            shulkersEncountered = 0;
+            rocketsUsedThisPath = 0;
+            //expecting a space somehwere in the input, and put into fortress coordinates
+            getline(expeditionFile, readString, ',');
+            for(int k = 0; k < readString.length(); k++){
+                if(readString[k] == ' '){
+                    continue;
+                }else
+                concatenatedString = concatenatedString + readString[k];
+            }
+            fortressX = stoi(concatenatedString);
+            cout << fortressX << endl;
+            concatenatedString = "";
+            getline(expeditionFile, readString, ',');
+            for(int k = 0; k < readString.length(); k++){
+                if(readString[k] == ' '){
+                    continue;
+                }
+                concatenatedString = concatenatedString + readString[k];
+            }
+            fortressZ = stoi(concatenatedString);
+            cout << fortressZ << endl;
+            concatenatedString = "";
+            //***************************************************************************************/
+            //preparing the parsing by removing spaces from the string
+            bool isTree = false;
+            bool isRocket = false;
+            bool isShulker = false;
+
+            getline(expeditionFile, readString);
+            for(int j = 0; j < readString.length(); j++){
+                //cout << static_cast<int>(readString[j]) << endl;
+                if(readString[j] == ' '){
+                    continue;
+                }
+                if(readString[j] == '\r'){
+                    continue;
+                }
+                concatenatedString = concatenatedString + readString[j];
+                //cout << concatenatedString << endl; 
+            }
+            if(concatenatedString[concatenatedString.length() - 1] == ','){
+                concatenatedString = concatenatedString.substr(0, concatenatedString.length() - 1);
+            }
+            cout << concatenatedString << endl;
+            //cout << concatenatedString.length() << endl;
+        
+
+            
+            
+        }
     }
     else{
         cout << "Failure to open the file" << endl;
