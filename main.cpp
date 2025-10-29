@@ -107,6 +107,30 @@ int main() {
                 currentColumn = 0;
             }
         }
+        // --- DEBUG: Print player summary right after reading player file ---
+        cout << "===== PLAYER FILE DEBUG =====\n";
+        cout << "Player coords: (" << playerX << ", " << playerZ << ")\n";
+        cout << "Has axe: " << (hasAxe ? "YES" : "NO") << "\n";
+        cout << "Carrots per shulker: " << carrotsPerShulker << "\n";
+        cout << "Total carrots (counted): " << totalCarrots << "\n";
+        cout << "Total rockets (counted): " << totalRockets << "\n";
+        cout << "Items added (slots filled): " << itemsAdded << "\n";
+
+        cout << "Inventory grid (row,col): ID,amount\n";
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 9; c++) {
+                cout << " [" << r << "," << c << "] ";
+                // Be defensive: some slots may be uninitialized; check itemsAdded range
+                int idx = r * 9 + c;
+                if (idx < itemsAdded) {
+                    cout << itemList[r][c] << ", " << itemAmount[r][c];
+                } else {
+                    cout << "~, 0";
+                }
+                cout << "\n";
+            }
+        }
+        cout << "=============================\n";
     } else {
         cout << "Failure to open player inventory file" << endl;
     }
@@ -247,7 +271,7 @@ int highestValueIndex = 0;
                     exploreValue[currentPath] = 0;
                 }
                 else{
-                    exploreValue[currentPath] = -1 * (carrotsNeeded + rocketsNeeded * 2) + (shulkersEncountered * 100 + woodGathered * 5);
+                    exploreValue[currentPath] = -1 * (carrotsNeeded + rocketsNeeded) + (shulkersEncountered * 100 + woodGathered * 5);
                     cout << "\nExpedition " << currentPath + 1 << " details:\n";
                     cout << "  Fortress coords: (" << fortressX << ", " << fortressZ << ")\n";
                     cout << "  Wood gathered: " << woodGathered << endl;
@@ -470,6 +494,7 @@ cout << "Current index outside the loop is " << itemsAdded << endl;
                 continue;
             }
         }
+
     }
     //adding a tilde to the array after the position the position is called 
     while(itemsAdded < 27){
