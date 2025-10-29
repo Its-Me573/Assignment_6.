@@ -123,43 +123,45 @@ int main() {
     //all of this is to get the formula and value to compare to the other paths
     //all stored variables are temporary and they will be removed for the next path
     string readString = "";
-    string concatenatedString = "";
-    int treesEncountered = 0;
+    string cleanLine = "";
+    int woodGathered = 0;
     int shulkersEncountered = 0;
     int rocketsUsedThisPath = 0;
+    int travelingCost = 0;
 
     if(expeditionFile.is_open()){
         for(int i = 0; i < 4; i++){
-            concatenatedString = "";
-            treesEncountered = 0;
+            cleanLine = "";
+            woodGathered = 0;
             shulkersEncountered = 0;
             rocketsUsedThisPath = 0;
+            travelingCost = 0;
+            rocketsNeeded = 0;
             //expecting a space somehwere in the input, and put into fortress coordinates
             getline(expeditionFile, readString, ',');
             for(int k = 0; k < readString.length(); k++){
                 if(readString[k] == ' '){
                     continue;
                 }else
-                concatenatedString = concatenatedString + readString[k];
+                cleanLine = cleanLine + readString[k];
             }
-            fortressX = stoi(concatenatedString);
-            cout << fortressX << endl;
-            concatenatedString = "";
+            fortressX = stoi(cleanLine);
+            cleanLine = "";
             getline(expeditionFile, readString, ',');
             for(int k = 0; k < readString.length(); k++){
                 if(readString[k] == ' '){
                     continue;
                 }
-                concatenatedString = concatenatedString + readString[k];
+                cleanLine = cleanLine + readString[k];
             }
-            fortressZ = stoi(concatenatedString);
-            cout << fortressZ << endl;
-            concatenatedString = "";
+            fortressZ = stoi(cleanLine);
+            cleanLine = "";
             //***************************************************************************************/
             //preparing the parsing by removing spaces from the string
             bool isTree = false;
             bool isRocket = false;
             bool isShulker = false;
+
 
             getline(expeditionFile, readString);
             for(int j = 0; j < readString.length(); j++){
@@ -170,19 +172,109 @@ int main() {
                 if(readString[j] == '\r'){
                     continue;
                 }
-                concatenatedString = concatenatedString + readString[j];
-                //cout << concatenatedString << endl; 
+                cleanLine = cleanLine + readString[j];
             }
-            if(concatenatedString[concatenatedString.length() - 1] == ','){
-                concatenatedString = concatenatedString.substr(0, concatenatedString.length() - 1);
+            //check for any files with commas at the end of the line
+            if(cleanLine[cleanLine.length() - 1] == ','){
+                cleanLine = cleanLine.substr(0, cleanLine.length() - 1);
             }
-            cout << concatenatedString << endl;
-            //cout << concatenatedString.length() << endl;
-        
+            cout << cleanLine << endl;
+            //---------------------------------------------------------------------------
+            //extracting data from the clean string, nums are put into the currentInt string
+            string currentInt = "";
+            //T,4,S,62,R,4,S,2
+            for(int j = 0; j < cleanLine.length(); j++){
+                //checks whether the current index is an ID
+                //sets id to true and continues to program to the next index
+                if(cleanLine[j] == 'T'){
+                    currentInt = "";
+                    isTree = true;
+                    continue;
+                }
+                else if(cleanLine[j] == 'R'){
+                    currentInt = "";
+                    isRocket = true;
+                    continue;
+                }
+                else if(cleanLine[j] == 'S'){
+                    currentInt = "";
+                    isShulker = true;
+                    continue;
+                }
+                if(cleanLine[j] == ',' && currentInt == ""){
+                    continue;
+                }
+                if(cleanLine[j] == ',' && currentInt != ""){
+                    if(isTree){
+                        woodGathered += stoi(currentInt);
+                        isTree = false;
+                    }else if(isShulker){
+                        shulkersEncountered += stoi(currentInt);
+                        isShulker = false;
+                    }else if(isRocket){
+                        rocketsUsedThisPath += stoi(currentInt);
+                        isRocket = false;
+                    }
+                    continue;
+                }
+                currentInt = currentInt + cleanLine[j];
+                if(j == cleanLine.length() - 1){
+                    if(isTree){
+                        woodGathered += stoi(currentInt);
+                        isTree = false;
+                    }else if(isShulker){
+                        shulkersEncountered += stoi(currentInt);
+                        isShulker = false;
+                    }else if(isRocket){
+                        rocketsUsedThisPath += stoi(currentInt);
+                        isShulker = false;
+                    }
+                    continue;
+                }
+                
+            }
+            
 
+            travelingCost = abs(playerX - fortressX) + abs(playerZ - fortressZ);
+            rocketsNeeded = (travelingCost + rocketsUsedThisPath) * 2;
+            int currentPath = i;
+       
+
+
+
+            if(rocketsNeeded > totalRockets){
+                exploreValue[currentPath] = 0;
+                
+            }
+            else{
+                if(!hasAxe){
+                    woodGathered = 0;
+                }
+                carrotsNeeded = shulkersEncountered * carrotsPerShulker + woodGathered/3;
+                
+                if(carrotsNeeded > totalCarrots){
+                    exploreValue[currentPath] = 0;
+                    
+                }
+                else{
+                    exploreValue[currentPath] = -1 * (carrotsNeeded + rocketsNeeded * 2) + (shulkersEncountered * 100 + woodGathered * 5);
+                    
+                }
+            }
             
-            
+            currentPath++;
         }
+
+            int highestValue = exploreValue[0];
+            int highestValueIndex = 0;
+            for(int h = 0; h < 4; h++){
+                if (exploreValue[h] > highestValue) {
+                    highestValue = exploreValue[h];
+                    highestValueIndex = h;
+                }
+            }   
+            cout << "The highest value expedition is path " << highestValueIndex + 1 
+     << " with a value of " << highestValue << endl;
     }
     else{
         cout << "Failure to open the file" << endl;
